@@ -5,7 +5,7 @@ TODO LIST WITH SPRING BOOT AND MONGODB
 Creating a project with Spring Boot and MongoDB
 
 SpringInitializr
--> Spring Web
+-> Spring Web\n
 -> Lombok
 -> Spring Data MongoDB
 -> SpringBoot DevTools
