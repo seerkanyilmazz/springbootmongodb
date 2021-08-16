@@ -4,11 +4,19 @@ TODO LIST WITH SPRING BOOT AND MONGODB
 
 Creating a project with Spring Boot and MongoDB
 
+******************************************************************************************************************************************
+
 SpringInitializr
+
 -> Spring Web
+
 -> Lombok
+
 -> Spring Data MongoDB
+
 -> SpringBoot DevTools
+
+******************************************************************************************************************************************
 
 Step by step CRUD Operations
 
@@ -29,5 +37,7 @@ Step by step CRUD Operations
 -> Create GetMapping for READ single data.
 
 -> Create Delete method for DELETE single data.
+
+******************************************************************************************************************************************
 
 -> Added auto generate Id starts from 1
