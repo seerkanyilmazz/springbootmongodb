@@ -17,6 +17,7 @@ public class TodoController {
     @Autowired 
     public TodoRepository todoRepository;
 
+    //Get all todos
     @GetMapping("/todos")
     public ResponseEntity<?> getAllTodos(){
         List<TodoDTO> todos = todoRepository.findAll();
@@ -28,17 +29,37 @@ public class TodoController {
         }
     }
 
+    //Create Todo
     @PostMapping("/todos")
     public ResponseEntity<?> createTodo(@RequestBody TodoDTO todo){
         try {
+            List<TodoDTO> todos = todoRepository.findAll();
+
+            if (todos.isEmpty() == true){
+                todo.setCreatedAt(new Date(System.currentTimeMillis()));
+                todo.setId("1");
+            }else{
+                TodoDTO lastItemOfTodos = todos.get(todos.size()-1);
+                String sequence = lastItemOfTodos.getId();
+                int sequenceInt = Integer.parseInt(sequence);
+
+                todo.setCreatedAt(new Date(System.currentTimeMillis()));
+                sequenceInt++;
+                todo.setId(String.valueOf(sequenceInt));
+                todoRepository.save(todo);
+            }
+
             todo.setCreatedAt(new Date(System.currentTimeMillis()));
             todoRepository.save(todo);
+
             return new ResponseEntity<TodoDTO>(todo, HttpStatus.OK);
+
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    //Get todo via id
     @GetMapping("/todos/{id}")
     public ResponseEntity<?> getSingleTodo(@PathVariable("id") String id){
         Optional<TodoDTO> todoDTOOptional = todoRepository.findById(id);
@@ -50,6 +71,7 @@ public class TodoController {
         }
     }
 
+    //Update todo via id
     @PutMapping("/todos/{id}")
     public ResponseEntity<?> updateById(@PathVariable("id") String id, @RequestBody TodoDTO todoDTO){
         Optional<TodoDTO> todoDTOOptional = todoRepository.findById(id);
@@ -69,6 +91,7 @@ public class TodoController {
         }
     }
 
+    //delete todo via id
     @DeleteMapping("/todos/{id}")
     public ResponseEntity<?> deleteById(@PathVariable("id") String id){
         try {
