@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Setter //Setter method Lombok.
@@ -19,10 +20,12 @@ public class TodoDTO {
     @Id //Primary key
     private String id;
 
+    @NotNull(message = "Todo can not be null")
     private String todo;
 
     private String description;
 
+    @NotNull(message = "Status can not be null")
     private Boolean status;
 
     private Date createdAt;
