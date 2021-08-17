@@ -4,7 +4,6 @@ import com.seerkanyilmazz.springbootmongodb.Repository.ITodoRepository;
 import com.seerkanyilmazz.springbootmongodb.exception.TodoCollectionException;
 import com.seerkanyilmazz.springbootmongodb.model.TodoDTO;
 import com.seerkanyilmazz.springbootmongodb.service.ITodoService;
-import com.seerkanyilmazz.springbootmongodb.service.TodoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
