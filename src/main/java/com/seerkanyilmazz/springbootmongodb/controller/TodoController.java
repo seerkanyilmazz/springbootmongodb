@@ -1,12 +1,16 @@
 package com.seerkanyilmazz.springbootmongodb.controller;
 
-import com.seerkanyilmazz.springbootmongodb.Repository.TodoRepository;
+import com.seerkanyilmazz.springbootmongodb.Repository.ITodoRepository;
+import com.seerkanyilmazz.springbootmongodb.exception.TodoCollectionException;
 import com.seerkanyilmazz.springbootmongodb.model.TodoDTO;
+import com.seerkanyilmazz.springbootmongodb.service.ITodoService;
+import com.seerkanyilmazz.springbootmongodb.service.TodoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,12 +19,15 @@ import java.util.Optional;
 public class TodoController {
 
     @Autowired 
-    public TodoRepository todoRepository;
+    private ITodoRepository iTodoRepository;
+
+    @Autowired
+    private ITodoService iTodoService;
 
     //Get all todos
     @GetMapping("/todos")
     public ResponseEntity<?> getAllTodos(){
-        List<TodoDTO> todos = todoRepository.findAll();
+        List<TodoDTO> todos = iTodoRepository.findAll();
 
         if (todos.size() > 0 ){
             return new ResponseEntity<List<TodoDTO>>(todos, HttpStatus.OK);
@@ -33,36 +40,19 @@ public class TodoController {
     @PostMapping("/todos")
     public ResponseEntity<?> createTodo(@RequestBody TodoDTO todo){
         try {
-            List<TodoDTO> todos = todoRepository.findAll();
-
-            if (todos.isEmpty() == true){
-                todo.setCreatedAt(new Date(System.currentTimeMillis()));
-                todo.setId("1");
-            }else{
-                TodoDTO lastItemOfTodos = todos.get(todos.size()-1);
-                String sequence = lastItemOfTodos.getId();
-                int sequenceInt = Integer.parseInt(sequence);
-
-                todo.setCreatedAt(new Date(System.currentTimeMillis()));
-                sequenceInt++;
-                todo.setId(String.valueOf(sequenceInt));
-                todoRepository.save(todo);
-            }
-
-            todo.setCreatedAt(new Date(System.currentTimeMillis()));
-            todoRepository.save(todo);
-
+            iTodoService.createTodo(todo);
             return new ResponseEntity<TodoDTO>(todo, HttpStatus.OK);
-
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }catch (ConstraintViolationException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        }catch (TodoCollectionException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
     }
 
     //Get todo via id
     @GetMapping("/todos/{id}")
     public ResponseEntity<?> getSingleTodo(@PathVariable("id") String id){
-        Optional<TodoDTO> todoDTOOptional = todoRepository.findById(id);
+        Optional<TodoDTO> todoDTOOptional = iTodoRepository.findById(id);
 
         if (todoDTOOptional.isPresent()){
             return new ResponseEntity<>(todoDTOOptional.get(), HttpStatus.OK);
@@ -74,7 +64,7 @@ public class TodoController {
     //Update todo via id
     @PutMapping("/todos/{id}")
     public ResponseEntity<?> updateById(@PathVariable("id") String id, @RequestBody TodoDTO todoDTO){
-        Optional<TodoDTO> todoDTOOptional = todoRepository.findById(id);
+        Optional<TodoDTO> todoDTOOptional = iTodoRepository.findById(id);
 
         if (todoDTOOptional.isPresent()){
             TodoDTO todoToSave = todoDTOOptional.get();
@@ -83,7 +73,7 @@ public class TodoController {
             todoToSave.setDescription(todoDTO.getDescription() != null ? todoDTO.getDescription() : todoToSave.getDescription());
             todoToSave.setUpdatedAt(new Date(System.currentTimeMillis()));
 
-            todoRepository.save(todoToSave);
+            iTodoRepository.save(todoToSave);
 
             return new ResponseEntity<>(todoToSave, HttpStatus.OK);
         }else{
@@ -95,8 +85,8 @@ public class TodoController {
     @DeleteMapping("/todos/{id}")
     public ResponseEntity<?> deleteById(@PathVariable("id") String id){
         try {
-            todoRepository.deleteById(id);
-            return new ResponseEntity<>("Deleting Successful by id" + id, HttpStatus.OK);
+            iTodoRepository.deleteById(id);
+            return new ResponseEntity<>("Deleting Successful by id " + id, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
